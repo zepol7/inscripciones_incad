@@ -1,10 +1,22 @@
 <?php
 	class Configuracion {
+            
+            /*Local host*/
+            /*
             public static $SERVIDOR= "localhost";
             public static $PUERTO = "3306";
             public static $USUARIOS= "root";
             public static $PASS= "";
             public static $BASE_DATOS= "incad_inscripciones";
+            */
+
+            /*Docker*/
+            public static $SERVIDOR= "db";
+            public static $PUERTO = "3306";
+            public static $USUARIOS= "insc_user";
+            public static $PASS= "insc_pass";
+            public static $BASE_DATOS= "inscripciones";
+
 
             /*public static $SERVIDOR= "localhost";
             public static $PUERTO = "3306";

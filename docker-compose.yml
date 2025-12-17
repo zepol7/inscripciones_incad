@@ -1,0 +1,35 @@
+services:
+  app:
+    build: .
+    container_name: inscripciones_app
+    ports:
+      - "8080:80"
+    environment:
+      DB_HOST: db
+      DB_NAME: inscripciones
+      DB_USER: insc_user
+      DB_PASS: insc_pass
+    depends_on:
+      - db
+    volumes:
+      - uploads:/var/www/html/uploads
+      - tmp:/var/www/html/tmp
+
+  db:
+    image: mysql:8.0
+    container_name: inscripciones_db
+    environment:
+      MYSQL_DATABASE: inscripciones
+      MYSQL_USER: insc_user
+      MYSQL_PASSWORD: insc_pass
+      MYSQL_ROOT_PASSWORD: root_pass
+    ports:
+      - "3307:3306"
+    volumes:
+      - dbdata:/var/lib/mysql
+      - ./docker/mysql/initdb:/docker-entrypoint-initdb.d:ro
+
+volumes:
+  dbdata:
+  uploads:
+  tmp:
