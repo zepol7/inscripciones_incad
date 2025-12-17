@@ -22,8 +22,8 @@
 		 * Método que crea una conexión con la base de datos
 		 */
 		protected function crearConexion() {
-			$this->conexion = new mysqli($this->servidor.":".$this->puerto, $this->usuario, $this->clave, $this->baseDatos);
-			//$this->conexion = new mysqli($this->servidor, $this->usuario, $this->clave, $this->baseDatos);
+			//$this->conexion = new mysqli($this->servidor.":".$this->puerto, $this->usuario, $this->clave, $this->baseDatos);
+			$this->conexion = new mysqli($this->servidor, $this->usuario, $this->clave, $this->baseDatos);
 			$this->conexion->set_charset("utf8");
 			
 			
