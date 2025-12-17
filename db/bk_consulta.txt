@@ -1,0 +1,83 @@
+/*$sql = "SELECT b.*,
+                    (CASE
+                        WHEN (b.id_riesgo_depre=1 AND b.id_riesgo_spa=1 AND b.id_riesgo_salud_mental=1 AND b.id_riesgo_emocionales=1) THEN 'RUTA AMARILLA'
+                             WHEN (b.id_riesgo_depre=2 AND b.id_riesgo_spa=2 AND b.id_riesgo_salud_mental=2 AND b.id_riesgo_emocionales=2) THEN 'RUTA ROJA'
+                        ELSE 'RUTA NARANJA'
+                    END) AS nom_riesgo_total,
+
+                    (CASE
+                        WHEN (b.id_riesgo_depre=1 AND b.id_riesgo_spa=1 AND b.id_riesgo_salud_mental=1 AND b.id_riesgo_emocionales=1) THEN 1
+                             WHEN (b.id_riesgo_depre=2 AND b.id_riesgo_spa=2 AND b.id_riesgo_salud_mental=2 AND b.id_riesgo_emocionales=2) THEN 2
+                        ELSE 3
+                    END) AS id_riesgo_total
+
+                    FROM                
+                    (    
+                    SELECT
+                    p.tipo_documento, tid.nombre_detalle AS nom_tipo_documento,  p.documento_persona, p.nombre_persona, p.apellido_persona, p.fecha_nacimiento, p.tel_casa_persona, p.tel_movil_persona, p.email_persona, 
+                    gen.nombre_detalle AS nom_genero, etc.nombre_detalle AS nom_etnia, civ.nombre_detalle AS nom_estado_civil, p.direccion_casa, p.nombre_padre_madre, p.telefono_padre_madre, p.email_padre_madre, 
+                    p.grado_estudiantil, gra.nombre_detalle AS nom_grado_estudiantil, p.curso, jor.nombre_detalle AS nom_jornada,  p.hobby, p.estudiar_despues_grado, p.red_facebook, p.red_instagram,
+                    p.genero,
+                    pe.*,  
+                    (CASE
+                            WHEN (pe.satisfecho_feliz_vida = 29 AND pe.sentido_vida  =  29 AND pe.amado_demas  =  29 AND pe.conforme_sexualidad  =  29 AND pe.relacion_padres  =  29) AND (pe.sentido_solo  =  30 AND pe.pasar_algo_malo  =  30 AND pe.llorar_silencio  =  30 AND pe.culpa_cosas_malas  =  30 AND pe.sentido_morirte  =  30 AND pe.suicidan_valientes  =  30 AND pe.preocupa_futuro  =  30) THEN 1
+                            WHEN ((pe.satisfecho_feliz_vida = 30 AND pe.sentido_vida = 30 AND pe.amado_demas = 30 AND pe.conforme_sexualidad = 30 AND pe.relacion_padres = 30) AND (pe.sentido_solo = 29 AND pe.pasar_algo_malo = 29 AND pe.llorar_silencio = 29 AND pe.culpa_cosas_malas = 29 AND pe.sentido_morirte = 29 AND pe.suicidan_valientes = 29 AND pe.preocupa_futuro = 29)) THEN 2
+                            ELSE 3
+                    END) AS id_riesgo_depre,
+                    (CASE
+                            WHEN (pe.satisfecho_feliz_vida = 29 AND pe.sentido_vida  =  29 AND pe.amado_demas  =  29 AND pe.conforme_sexualidad  =  29 AND pe.relacion_padres  =  29) AND (pe.sentido_solo  =  30 AND pe.pasar_algo_malo  =  30 AND pe.llorar_silencio  =  30 AND pe.culpa_cosas_malas  =  30 AND pe.sentido_morirte  =  30 AND pe.suicidan_valientes  =  30 AND pe.preocupa_futuro  =  30) THEN 'SIN RIESGO DE SUICIDIO Y/O DEPRESIÓN'
+                            WHEN ((pe.satisfecho_feliz_vida = 30 AND pe.sentido_vida = 30 AND pe.amado_demas = 30 AND pe.conforme_sexualidad = 30 AND pe.relacion_padres = 30) AND (pe.sentido_solo = 29 AND pe.pasar_algo_malo = 29 AND pe.llorar_silencio = 29 AND pe.culpa_cosas_malas = 29 AND pe.sentido_morirte = 29 AND pe.suicidan_valientes = 29 AND pe.preocupa_futuro = 29)) THEN 'CON ALTO RIESGO PARA SUICIDIO Y DEPRESIÓN'
+                            ELSE 'RIESGO MODERADO'
+                    END) AS riesgo_depre,
+                    (CASE
+                            WHEN ((pe.saber_psicoactivas=29 AND pe.ayudad_salir_drogas=29 AND pe.droga_muerte=29) AND (pe.consumido_psicoactivas=30 AND pe.sustancia_vicios=30 AND pe.sustancia_drogas=30 AND pe.facilidad_drogas=30 AND pe.probar_drogas=30 AND pe.familia_consume_vicios=30 AND pe.familia_consume_drogas=30 AND pe.drogas_feliz=30 AND pe.droga_muerte=30 AND pe.deseo_drogas=30 AND pe.aceptado_drogas=30)) THEN 1
+                            WHEN ((pe.saber_psicoactivas=30 AND pe.ayudad_salir_drogas=30 AND pe.droga_muerte=30) AND (pe.consumido_psicoactivas=29 AND pe.sustancia_vicios=29 AND pe.sustancia_drogas=29 AND pe.facilidad_drogas=29 AND pe.probar_drogas=29 AND pe.familia_consume_vicios=29 AND pe.familia_consume_drogas=29 AND pe.drogas_feliz=29 AND pe.droga_muerte=29 AND pe.deseo_drogas=29 AND pe.aceptado_drogas=29)) THEN 2
+                            ELSE 3
+                    END) AS id_riesgo_spa,
+
+                    (CASE
+                            WHEN ((pe.saber_psicoactivas=29 AND pe.ayudad_salir_drogas=29 AND pe.droga_muerte=29) AND (pe.consumido_psicoactivas=30 AND pe.sustancia_vicios=30 AND pe.sustancia_drogas=30 AND pe.facilidad_drogas=30 AND pe.probar_drogas=30 AND pe.familia_consume_vicios=30 AND pe.familia_consume_drogas=30 AND pe.drogas_feliz=30 AND pe.droga_muerte=30 AND pe.deseo_drogas=30 AND pe.aceptado_drogas=30)) THEN 'SIN RIESGO DE CONSUMO DE SPA'
+                            WHEN ((pe.saber_psicoactivas=30 AND pe.ayudad_salir_drogas=30 AND pe.droga_muerte=30) AND (pe.consumido_psicoactivas=29 AND pe.sustancia_vicios=29 AND pe.sustancia_drogas=29 AND pe.facilidad_drogas=29 AND pe.probar_drogas=29 AND pe.familia_consume_vicios=29 AND pe.familia_consume_drogas=29 AND pe.drogas_feliz=29 AND pe.droga_muerte=29 AND pe.deseo_drogas=29 AND pe.aceptado_drogas=29)) THEN 'CON ALTO RIESGO DE CONSUMO DE SPA'
+                            ELSE 'RIESGO MODERADO DE CONSUMO DE SPA'
+                    END) AS riesgo_spa,
+
+                    (CASE
+                            WHEN ((pe.saludable_mental=29 AND pe.feliz_familia=29 AND pe.buenas_relaciones=29 AND pe.problemas_apoyan=29 AND pe.controla_rabias=29 AND pe.entiende_otros_dicen=29) AND (pe.sientes_rechazo=30 AND pe.miedo_futuro=30 AND pe.desconfia_personas=30 AND pe.maltrato_animal=30 AND pe.cuerpo_horrible=30 AND pe.cuesta_conciliar_sueno=30 AND pe.enferma_constantemente=30 AND pe.cuesta_resolver_problemas=30 AND pe.escuchas_voces=30)) THEN 1
+                            WHEN ((pe.saludable_mental=30 AND pe.feliz_familia=30 AND pe.buenas_relaciones=30 AND pe.problemas_apoyan=30 AND pe.controla_rabias=30 AND pe.entiende_otros_dicen=30) AND (pe.sientes_rechazo=29 AND pe.miedo_futuro=29 AND pe.desconfia_personas=29 AND pe.maltrato_animal=29 AND pe.cuerpo_horrible=29 AND pe.cuesta_conciliar_sueno=29 AND pe.enferma_constantemente=29 AND pe.cuesta_resolver_problemas=29 AND pe.escuchas_voces=29)) THEN 2
+                            ELSE 3
+                    END) AS id_riesgo_salud_mental,
+
+                    (CASE
+                            WHEN ((pe.saludable_mental=29 AND pe.feliz_familia=29 AND pe.buenas_relaciones=29 AND pe.problemas_apoyan=29 AND pe.controla_rabias=29 AND pe.entiende_otros_dicen=29) AND (pe.sientes_rechazo=30 AND pe.miedo_futuro=30 AND pe.desconfia_personas=30 AND pe.maltrato_animal=30 AND pe.cuerpo_horrible=30 AND pe.cuesta_conciliar_sueno=30 AND pe.enferma_constantemente=30 AND pe.cuesta_resolver_problemas=30 AND pe.escuchas_voces=30)) THEN 'SIN RIESGO DE TENER UN TRASTORNO EN SALUD MENTAL'
+                            WHEN ((pe.saludable_mental=30 AND pe.feliz_familia=30 AND pe.buenas_relaciones=30 AND pe.problemas_apoyan=30 AND pe.controla_rabias=30 AND pe.entiende_otros_dicen=30) AND (pe.sientes_rechazo=29 AND pe.miedo_futuro=29 AND pe.desconfia_personas=29 AND pe.maltrato_animal=29 AND pe.cuerpo_horrible=29 AND pe.cuesta_conciliar_sueno=29 AND pe.enferma_constantemente=29 AND pe.cuesta_resolver_problemas=29 AND pe.escuchas_voces=29)) THEN 'CON ALTO RIESGO DE TENER UN TRASTORNO EN SALUD MENTAL'
+                            ELSE 'RIESGO MODERADO EN TENER UN TRASTORNO EN SALUD MENTAL'
+                    END) AS riesgo_salud_mental,
+
+                    (CASE
+                            WHEN ((pe.evento_duele_recordar=30 AND pe.maltrato_casa=30 AND pe.piensa_diferente_rechaza=30 AND pe.rechazo_homo_lesbi=30 AND pe.criticado_peso=30 AND pe.culpa_comer_mas=30 AND pe.vomitar_baja_peso=30 AND pe.ves_oyes_demas=30 AND pe.asco_cuerpo=30 AND pe.personas_mejores=30 AND pe.vida_injusta=30) AND (pe.tiempo_suficiente_familia=29 AND pe.sientes_amado=29 AND pe.haces_deporte=29 )) THEN 1
+                            WHEN ((pe.evento_duele_recordar=29 AND pe.maltrato_casa=29 AND pe.piensa_diferente_rechaza=29 AND pe.rechazo_homo_lesbi=29 AND pe.criticado_peso=29 AND pe.culpa_comer_mas=29 AND pe.vomitar_baja_peso=29 AND pe.ves_oyes_demas=29 AND pe.asco_cuerpo=29 AND pe.personas_mejores=29 AND pe.vida_injusta=29) AND (pe.tiempo_suficiente_familia=30 AND pe.sientes_amado=30 AND pe.haces_deporte=30 )) THEN 2
+                            ELSE 3
+                    END) AS id_riesgo_emocionales,
+
+                    (CASE
+                            WHEN ((pe.evento_duele_recordar=30 AND pe.maltrato_casa=30 AND pe.piensa_diferente_rechaza=30 AND pe.rechazo_homo_lesbi=30 AND pe.criticado_peso=30 AND pe.culpa_comer_mas=30 AND pe.vomitar_baja_peso=30 AND pe.ves_oyes_demas=30 AND pe.asco_cuerpo=30 AND pe.personas_mejores=30 AND pe.vida_injusta=30) AND (pe.tiempo_suficiente_familia=29 AND pe.sientes_amado=29 AND pe.haces_deporte=29 )) THEN 'SIN RIESGO A OTROS PADECIMIENTO EMOCIONALES /VIOLENCIAS'
+                            WHEN ((pe.evento_duele_recordar=29 AND pe.maltrato_casa=29 AND pe.piensa_diferente_rechaza=29 AND pe.rechazo_homo_lesbi=29 AND pe.criticado_peso=29 AND pe.culpa_comer_mas=29 AND pe.vomitar_baja_peso=29 AND pe.ves_oyes_demas=29 AND pe.asco_cuerpo=29 AND pe.personas_mejores=29 AND pe.vida_injusta=29) AND (pe.tiempo_suficiente_familia=30 AND pe.sientes_amado=30 AND pe.haces_deporte=30 )) THEN 'CON ALTO RIESGO A OTROS PADECIMIENTO EMOCIONALES /VIOLENCIAS'
+                            ELSE 'RIESGO MODERADO A OTROS PADECIMIENTO EMOCIONALES /VIOLENCIAS'
+                    END) AS riesgo_emocionales
+
+                    FROM personas p 
+                    INNER JOIN personas_encuesta pe ON pe.id_persona = p.id_persona
+                    INNER JOIN usuarios u ON u.id_usuario = pe.id_usuario_crea
+                    INNER JOIN usuarios_perfiles up ON up.id_usuario = u.id_usuario
+                    INNER JOIN perfiles per ON per.id_perfil = up.id_perfil
+
+                    LEFT JOIN listas_detalle tid ON tid.id_detalle = p.tipo_documento
+                    LEFT JOIN listas_detalle gen ON gen.id_detalle = p.genero
+                    LEFT JOIN listas_detalle etc ON etc.id_detalle = p.etnia
+                    LEFT JOIN listas_detalle civ ON civ.id_detalle = p.estado_civil
+                    LEFT JOIN listas_detalle gra ON gra.id_detalle = p.grado_estudiantil
+                    LEFT JOIN listas_detalle jor ON jor.id_detalle = p.jornada    
+
+                    WHERE up.id_perfil = $idPerfil
+                    AND per.tipo_colegio = 1) b";
+                                        */
