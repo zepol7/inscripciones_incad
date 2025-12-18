@@ -9,13 +9,15 @@
             public static $PASS= "";
             public static $BASE_DATOS= "incad_inscripciones";
             */
+            
 
-            /*Docker*/
+            /*Docker*/            
             public static $SERVIDOR= "db";
             public static $PUERTO = "3310";
             public static $USUARIOS= "insc_user";
             public static $PASS= "insc_pass";
             public static $BASE_DATOS= "inscripciones";
+            
 
 
             /*public static $SERVIDOR= "localhost";
