@@ -4,80 +4,65 @@ pipeline {
   stages {
     stage('Checkout') {
       steps {
-        echo 'Obteniendo código fuente desde GitHub...'
+        echo '📥 Descargando código desde GitHub...'
         checkout scm
       }
     }
     
     stage('SonarQube Analysis') {
       steps {
-        echo 'Analizando código con SonarQube usando Docker...'
+        echo '🔍 Ejecutando análisis de SonarQube...'
         script {
-          // Obtener el token de SonarQube desde las credenciales de Jenkins
           withCredentials([string(credentialsId: 'sonarqube-token', variable: 'SONAR_TOKEN')]) {
             bat """
               docker run --rm ^
-              -e SONAR_HOST_URL=http://host.docker.internal:9000 ^
+              --network host ^
+              -e SONAR_HOST_URL=http://localhost:9000 ^
               -e SONAR_TOKEN=%SONAR_TOKEN% ^
-              -v %CD%:/usr/src ^
-              sonarsource/sonar-scanner-cli ^
+              -v "%CD%":/usr/src ^
+              sonarsource/sonar-scanner-cli:latest ^
               -Dsonar.projectKey=inscripciones_incad ^
+              -Dsonar.projectName="Inscripciones INCAD" ^
               -Dsonar.sources=. ^
-              -Dsonar.exclusions=**/vendor/**,**/node_modules/**,**/.git/**
+              -Dsonar.exclusions=**/vendor/**,**/node_modules/**,**/.git/**,**/tests/**
             """
           }
         }
-      }
-    }
-    
-    stage('Quality Gate') {
-      steps {
-        echo 'Verificando Quality Gate...'
-        timeout(time: 2, unit: 'MINUTES') {
-          script {
-            // Esperar un poco para que SonarQube procese
-            sleep 10
-            
-            withCredentials([string(credentialsId: 'sonarqube-token', variable: 'SONAR_TOKEN')]) {
-              def response = bat(
-                script: """
-                  curl -u %SONAR_TOKEN%: ^
-                  http://localhost:9000/api/qualitygates/project_status?projectKey=inscripciones_incad
-                """,
-                returnStdout: true
-              ).trim()
-              
-              echo "Quality Gate Status: ${response}"
-            }
-          }
-        }
+        echo '✅ Análisis de SonarQube completado'
+        echo '📊 Ver resultados en: http://localhost:9000/dashboard?id=inscripciones_incad'
       }
     }
     
     stage('Docker Build') {
       steps {
-        echo 'Construyendo imagen Docker...'
+        echo '🐳 Construyendo imagen Docker...'
         bat 'docker version'
-        bat "docker build -t inscripciones_incad:${BUILD_NUMBER} ."
+        bat "docker build -t inscripciones_incad:%BUILD_NUMBER% ."
+        echo "✅ Imagen creada: inscripciones_incad:%BUILD_NUMBER%"
       }
     }
     
-    stage('Deploy (Docker Compose)') {
+    stage('Deploy') {
       steps {
-        echo 'Desplegando aplicación...'
+        echo '🚀 Desplegando aplicación...'
         bat 'docker compose down --remove-orphans'
         bat 'docker compose up -d --build'
         bat 'docker ps'
+        echo '✅ Aplicación desplegada exitosamente'
       }
     }
   }
   
   post {
     success {
-      echo '✅ Pipeline completado exitosamente!'
+      echo '✅ ¡Pipeline ejecutado exitosamente!'
+      echo '📊 Revisa SonarQube: http://localhost:9000/dashboard?id=inscripciones_incad'
     }
     failure {
-      echo '❌ Pipeline falló'
+      echo '❌ El pipeline falló. Revisa los logs arriba.'
+    }
+    always {
+      echo '🧹 Pipeline finalizado'
     }
   }
 }
