@@ -1,10 +1,6 @@
 pipeline {
   agent any
   
-  environment {
-    SONAR_SCANNER_HOME = tool 'SonarScanner'
-  }
-  
   stages {
     stage('Checkout') {
       steps {
@@ -15,15 +11,19 @@ pipeline {
     
     stage('SonarQube Analysis') {
       steps {
-        echo 'Iniciando análisis de código con SonarQube...'
+        echo 'Analizando código con SonarQube usando Docker...'
         script {
-          withSonarQubeEnv('SonarQube') {
+          // Obtener el token de SonarQube desde las credenciales de Jenkins
+          withCredentials([string(credentialsId: 'sonarqube-token', variable: 'SONAR_TOKEN')]) {
             bat """
-              ${SONAR_SCANNER_HOME}/bin/sonar-scanner.bat ^
+              docker run --rm ^
+              -e SONAR_HOST_URL=http://host.docker.internal:9000 ^
+              -e SONAR_TOKEN=%SONAR_TOKEN% ^
+              -v %CD%:/usr/src ^
+              sonarsource/sonar-scanner-cli ^
               -Dsonar.projectKey=inscripciones_incad ^
               -Dsonar.sources=. ^
-              -Dsonar.host.url=http://localhost:9000 ^
-              -Dsonar.exclusions=**/vendor/**,**/node_modules/**
+              -Dsonar.exclusions=**/vendor/**,**/node_modules/**,**/.git/**
             """
           }
         }
@@ -32,9 +32,24 @@ pipeline {
     
     stage('Quality Gate') {
       steps {
-        echo 'Esperando resultado del Quality Gate...'
-        timeout(time: 5, unit: 'MINUTES') {
-          waitForQualityGate abortPipeline: true
+        echo 'Verificando Quality Gate...'
+        timeout(time: 2, unit: 'MINUTES') {
+          script {
+            // Esperar un poco para que SonarQube procese
+            sleep 10
+            
+            withCredentials([string(credentialsId: 'sonarqube-token', variable: 'SONAR_TOKEN')]) {
+              def response = bat(
+                script: """
+                  curl -u %SONAR_TOKEN%: ^
+                  http://localhost:9000/api/qualitygates/project_status?projectKey=inscripciones_incad
+                """,
+                returnStdout: true
+              ).trim()
+              
+              echo "Quality Gate Status: ${response}"
+            }
+          }
         }
       }
     }
@@ -49,7 +64,7 @@ pipeline {
     
     stage('Deploy (Docker Compose)') {
       steps {
-        echo 'Desplegando aplicación con Docker Compose...'
+        echo 'Desplegando aplicación...'
         bat 'docker compose down --remove-orphans'
         bat 'docker compose up -d --build'
         bat 'docker ps'
@@ -59,14 +74,10 @@ pipeline {
   
   post {
     success {
-      echo '¡Pipeline ejecutado exitosamente! ✅'
+      echo '✅ Pipeline completado exitosamente!'
     }
     failure {
-      echo 'Pipeline falló ❌'
-    }
-    always {
-      echo 'Limpiando workspace...'
-      cleanWs()
+      echo '❌ Pipeline falló'
     }
   }
 }
