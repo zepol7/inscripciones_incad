@@ -13,7 +13,7 @@ pipeline {
       steps {
         echo '🔍 Ejecutando análisis de SonarQube...'
         script {
-          withCredentials([string(credentialsId: 'sonarqube-token', variable: 'SONAR_TOKEN')]) {
+          withCredentials([string(credentialsId: 'sonarqube-token-2', variable: 'SONAR_TOKEN')]) {
             bat """
               docker run --rm ^
               --network host ^
@@ -66,3 +66,4 @@ pipeline {
     }
   }
 }
+
