@@ -13,7 +13,7 @@ pipeline {
       steps {
         echo '🔍 Ejecutando análisis de SonarQube...'
         script {
-          withCredentials([string(credentialsId: 'sonarqube-token-2', variable: 'SONAR_TOKEN')]) {
+          withCredentials([string(credentialsId: 'sonarqube-token-ver5', variable: 'SONAR_TOKEN')]) {
             bat """
               docker run --rm ^
               --network host ^
@@ -21,15 +21,15 @@ pipeline {
               -e SONAR_TOKEN=%SONAR_TOKEN% ^
               -v "%CD%":/usr/src ^
               sonarsource/sonar-scanner-cli:latest ^
-              -Dsonar.projectKey=inscripciones_incad ^
-              -Dsonar.projectName="Inscripciones INCAD" ^
+              -Dsonar.projectKey=inscripciones_incad_5 ^
+              -Dsonar.projectName="Inscripciones INCAD Ver 5" ^
               -Dsonar.sources=. ^
               -Dsonar.exclusions=**/vendor/**,**/node_modules/**,**/.git/**,**/tests/**
             """
           }
         }
         echo '✅ Análisis de SonarQube completado'
-        echo '📊 Ver resultados en: http://localhost:9000/dashboard?id=inscripciones_incad'
+        echo '📊 Ver resultados en: http://localhost:9000/dashboard?id=inscripciones_incad_5'
       }
     }
     
@@ -66,4 +66,5 @@ pipeline {
     }
   }
 }
+
 
